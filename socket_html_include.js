@@ -89,7 +89,7 @@ app.controller('myCtrl', function($scope) {
 
 			obj.socket.on('broadcast_glist', function(data) {
 				console.log("Got gear list broadcast " + data.count);
-				for (var x=0;x<data.count;x++) {
+				for (var x=0;x<data.glist.length;x++) {
 					//console.log("gear (" + x + ") = " + data.glist[x]); 
 					if (data.glist[x])
 						insert_gear(data.glist[x]); 

@@ -5,6 +5,17 @@ db = null;
 db_type = null;
 
 /*
+ * Configuration information is stored here
+ */
+config_master_gear = "192.168.1.149";
+
+
+var master = function()
+{
+    return config_master_gear
+    
+}
+/*
  * 
  * Edit accordingly for your setup
  */
@@ -76,3 +87,4 @@ module.exports.store_msg = store_msg;
 module.exports.dump_all_messages = dump_all_messages;
 module.exports.send_pending_messages = send_pending_messages;
 module.exports.log = log;
+module.exports.master = master;

@@ -2,6 +2,7 @@ var database = require('./database.js');
 var http = require('http');
 var fs = require('fs');
 var gearclient = require('socket.io-client');
+var async = require('async');
 
 var SampleApp = function() {
 	var self = this;
@@ -11,6 +12,7 @@ var SampleApp = function() {
         var start_time = null;
         var curr_time = null;
         var chat_count = 0;
+        var chat_rooms = []; //index by chat room uuid.
         
         database.connect();
         database.store_msg({from:"vikram",to: "reddy", uuid: "x02", ts:"now", type: "chat", data: "hello!"});
@@ -98,7 +100,8 @@ var SampleApp = function() {
                         if (found == true) {
                                 fn("sucess " + self.gearid + " < ");
                         } else {
-                                fn("failed " + self.gearid + " < ");
+                                //fn("failed " + self.gearid + " < ");
+                                //dont do anything.
                         }
                 });         
                 
@@ -191,11 +194,7 @@ var SampleApp = function() {
                                
                                curr_time = new Date();
                                var date = new Date(curr_time.getTime() - start_time.getTime());
-                                var strt = '';
-                                strt += date.getUTCDate()-1 + " days, ";
-                                strt += date.getUTCHours() + " hours, ";
-                                strt += date.getUTCMinutes() + " minutes, ";
-                                strt += date.getUTCSeconds() + " seconds, ";
+                                var strt = date.getSeconds() + " s";
                                fn ({ip: '192.168.1.149', port: self.gearid, counter: counter, 
                                     peerlist: str, mcount: chat_count, uptime: strt, link : lstr, ccount: clients.length});
                         });
@@ -299,10 +298,30 @@ var SampleApp = function() {
                                 if (found == true) {
                                         fn("sucess " + self.gearid + "<");
                                 } else {
-                                 	cluster_gears.forEach(function (g) {
-						var sock = g.socket;
+                                        async.map(cluster_gears, 
+                                                function(g, callback) { 
+                                                    var sock = g.socket;
+                                                   console.log("In  c2s_query_userid");
+                                                   sock.emit('s2s_query_userid', p, callback);                                                             
+                                                }, function(err, results) { 
+                                                        fn(err);
+                                                });
+                                        /*
+                                        async.forEach(cluster_gears, function(g, callback) { 
+                                                var sock = g.socket;
+                                                console.log("In  c2s_query_userid " + JSON.stringify(p));
 						sock.emit('s2s_query_userid', p, fn);
-					});   
+                                                callback();
+                                            }, function(err) {
+                                                if (err) return next(err);
+                                                //Tell the user about the great success
+                                                //fn(loc);
+                                            });           
+                                          */  
+                                 	//cluster_gears.forEach(function (g) {
+					//	var sock = g.socket;
+					//	sock.emit('s2s_query_userid', p, fn);
+					//});   
 				}	
 			});
 
@@ -373,8 +392,8 @@ var SampleApp = function() {
 		                        cluster_gears.forEach(function (obj) {
 						gear_ids.push(obj.port);
                 		        });
-		//			console.log("send timed message = " + JSON.stringify(gear_ids));
-		//			u.socket.emit('broadcast_glist', { glist: gear_ids, count: 2});
+					console.log("send timed message = " + JSON.stringify(gear_ids));
+					u.socket.emit('broadcast_glist', { glist: gear_ids});
 				}
                         });
 			console.log("Connected users: " + clients.length + " ( " + num + " ) ");
