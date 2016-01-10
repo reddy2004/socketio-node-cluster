@@ -13,3 +13,11 @@ and communicate with each other.
 
 Clients can connect to these gears over socketio. Clients could be browsers/apps etc.
 All communication between gears, between gears and clients is done using json format data.
+
+
+
+TODO (updated 09 JAN 2016)
+
+1. Get gears to start communicating with MASTER and each other                                      [Basic done]
+2. Allow saving of configuration data in MASTER and easy distribution of config data among gears.
+3. Gears must allow easy exchange of config data of clients, conn status etc.
